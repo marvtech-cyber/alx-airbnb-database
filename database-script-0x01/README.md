@@ -1,0 +1,1 @@
+Database Schema (DDL) for Airbnb project

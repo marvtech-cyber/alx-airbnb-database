@@ -90,4 +90,4 @@ WHERE
     AND
     b.booking_date <= '2024-12-31' -- index-friendly filter
 ORDER BY
-    b.booking_date DESC; -- Make sure there's an index on booking_date
+    b.booking_date DESC; -- Make sure there's an index on booking_dategit commit -m "rem"

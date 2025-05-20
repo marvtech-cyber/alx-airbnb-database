@@ -1,25 +1,43 @@
-Index Performance Analysis Report
-This report aims to identify high-usage columns in the User, Booking, and Property tables and assess the impact of indexing on query performance.
+Database Indexing for Performance Optimization
+📌 Objective
+This module focuses on identifying key columns in the database tables that are frequently used in queries and creating indexes on those columns to improve query performance.
 
-High-Usage Column Identification
-An analysis of common query patterns, including WHERE, JOIN, and ORDER BY clauses, revealed the following high-usage columns:
+🔍 Identifying High-Usage Columns
+Indexes are most effective on columns that are commonly used in:
 
-User Table
-email: Frequently used in WHERE clauses for user login and lookup operations, such as SELECT * FROM User WHERE email = 'user@example.com'.
-Booking Table
-property_id: Utilized in JOIN clauses to link bookings with properties, e.g., Booking JOIN Property ON Booking.property_id = Property.property_id.
-user_id: Employed in JOIN clauses to associate bookings with users, e.g., Booking JOIN User ON Booking.user_id = User.user_id.
-start_date: Used in WHERE clauses for date range queries, such as SELECT * FROM Booking WHERE start_date >= '2025-06-01'.
-Property Table
-host_id: Used in JOIN clauses to connect properties with their respective hosts, e.g., Property JOIN User ON Property.host_id = User.user_id.
-Index Creation
-To improve query performance, the following indexes were created and stored in the database_index.sql file:
+WHERE clauses (filtering)
+JOIN conditions
+ORDER BY clauses
+Columns involved in GROUP BY or aggregate functions
+Key tables and columns to consider:
+Table	Column(s)	Usage Scenario
+users	email	User lookup, authentication
+profiles	user_id	Join with users, bookings
+bookings	booked_by (profile_id)	Join with profiles, filtering
+property_id	Join with properties
+start_date, end_date	Date range queries, filtering
+properties	location	Search/filter by location
+posted_by (profile_id)	Join with profiles
+💾 SQL Index Creation Commands
+Create indexes on the identified columns to optimize queries:
 
-idx_user_email on User(email)
-idx_booking_property_id on Booking(property_id)
-idx_booking_user_id on Booking(user_id)
-idx_booking_start_date on Booking(start_date)
-idx_property_host_id on Property(host_id)
+-- Index on users.email for fast lookup by email
+CREATE INDEX idx_users_email ON users(email);
 
-Performance Evaluation
-The impact of indexing on query performance was measured using the EXPLAIN statement on sample queries, both before and after index creation. The database was populated with sample data from database-script-0x02/seed.sql.
+-- Index on profiles.user_id for joins with users and bookings
+CREATE INDEX idx_profiles_user_id ON profiles(user_id);
+
+-- Index on bookings.booked_by for joins and filtering by user profile
+CREATE INDEX idx_bookings_booked_by ON bookings(booked_by);
+
+-- Index on bookings.property_id for joins with properties
+CREATE INDEX idx_bookings_property_id ON bookings(property_id);
+
+-- Composite index on bookings dates to speed up date range queries
+CREATE INDEX idx_bookings_start_end_date ON bookings(start_date, end_date);
+
+-- Index on properties.location for location-based filtering
+CREATE INDEX idx_properties_location ON properties(location);
+
+-- Index on properties.posted_by for joins with profiles
+CREATE INDEX idx_properties_posted_by ON properties(posted_by);

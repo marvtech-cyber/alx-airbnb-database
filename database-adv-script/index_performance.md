@@ -20,3 +20,6 @@ idx_booking_property_id on Booking(property_id)
 idx_booking_user_id on Booking(user_id)
 idx_booking_start_date on Booking(start_date)
 idx_property_host_id on Property(host_id)
+
+Performance Evaluation
+The impact of indexing on query performance was measured using the EXPLAIN statement on sample queries, both before and after index creation. The database was populated with sample data from database-script-0x02/seed.sql.

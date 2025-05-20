@@ -1,43 +1,54 @@
-Database Indexing for Performance Optimization
-📌 Objective
-This module focuses on identifying key columns in the database tables that are frequently used in queries and creating indexes on those columns to improve query performance.
+Implementing Indexes for Optimization
+🧠 Step 1: Identify High-Usage Columns
+Based on typical queries, here are commonly used columns:
 
-🔍 Identifying High-Usage Columns
-Indexes are most effective on columns that are commonly used in:
+Table	High-Usage Columns	Usage Context
+users	id, email	Joins, WHERE
+bookings	user_id, property_id, booking_date	Joins, WHERE, ORDER BY
+properties	id, location, price	Joins, WHERE, ORDER BY
+🛠 Step 2: Create Indexes
+Create a file called database_index.sql and add the following SQL commands:
 
-WHERE clauses (filtering)
-JOIN conditions
-ORDER BY clauses
-Columns involved in GROUP BY or aggregate functions
-Key tables and columns to consider:
-Table	Column(s)	Usage Scenario
-users	email	User lookup, authentication
-profiles	user_id	Join with users, bookings
-bookings	booked_by (profile_id)	Join with profiles, filtering
-property_id	Join with properties
-start_date, end_date	Date range queries, filtering
-properties	location	Search/filter by location
-posted_by (profile_id)	Join with profiles
-💾 SQL Index Creation Commands
-Create indexes on the identified columns to optimize queries:
+-- Index on users.id for fast joins
+CREATE INDEX idx_users_id ON users(id);
 
--- Index on users.email for fast lookup by email
+-- Index on users.email for login lookups or filtering
 CREATE INDEX idx_users_email ON users(email);
 
--- Index on profiles.user_id for joins with users and bookings
-CREATE INDEX idx_profiles_user_id ON profiles(user_id);
+-- Index on bookings.user_id for joins
+CREATE INDEX idx_bookings_user_id ON bookings(user_id);
 
--- Index on bookings.booked_by for joins and filtering by user profile
-CREATE INDEX idx_bookings_booked_by ON bookings(booked_by);
-
--- Index on bookings.property_id for joins with properties
+-- Index on bookings.property_id for joins
 CREATE INDEX idx_bookings_property_id ON bookings(property_id);
 
--- Composite index on bookings dates to speed up date range queries
-CREATE INDEX idx_bookings_start_end_date ON bookings(start_date, end_date);
+-- Index on bookings.booking_date for date filtering or sorting
+CREATE INDEX idx_bookings_date ON bookings(booking_date);
 
--- Index on properties.location for location-based filtering
+-- Index on properties.id for joins
+CREATE INDEX idx_properties_id ON properties(id);
+
+-- Index on properties.location for filtering
 CREATE INDEX idx_properties_location ON properties(location);
 
--- Index on properties.posted_by for joins with profiles
-CREATE INDEX idx_properties_posted_by ON properties(posted_by);
+-- Index on properties.price for range queries
+CREATE INDEX idx_properties_price ON properties(price);
+🔍 Step 3: Measure Performance with EXPLAIN
+Before and after creating indexes, run your query like this:
+
+EXPLAIN ANALYZE
+SELECT 
+    b.id, u.name, p.title
+FROM 
+    bookings b
+JOIN 
+    users u ON b.user_id = u.id
+JOIN 
+    properties p ON b.property_id = p.id
+WHERE 
+    b.booking_date >= '2024-01-01'
+ORDER BY 
+    b.booking_date DESC;
+Observations:
+
+Query plan steps: After addinng indexes, index scans are being used instead of sequential scans.
+Execution time: The execution time dropped after adding indexes.
